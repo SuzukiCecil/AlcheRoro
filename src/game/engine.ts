@@ -188,7 +188,22 @@ export function convert(state: GameState, from: Color, to: Color): GameState {
   }
 }
 
-/** 2. 調合：コスト消費 → 得点加算 → 山札から補充 → 6点で即勝利 */
+/**
+ * 場のカードを補充するタイミング。
+ * - turnEnd：手番の終わりにまとめて補充（調合で空いた場所は、その手番の間は空きのまま）
+ * - craft：調合するたびにすぐ補充（旧ルール。シミュレーションの比較用）
+ */
+export const RULES: { refill: 'turnEnd' | 'craft' } = { refill: 'turnEnd' }
+
+/** 場の空きを山札から埋める */
+export function refillMarket(state: GameState): GameState {
+  if (!state.market.includes(null) || state.deck.length === 0) return state
+  const deck = [...state.deck]
+  const market = state.market.map((c) => c ?? deck.shift() ?? null)
+  return { ...state, deck, market }
+}
+
+/** 2. 調合：コスト消費 → 得点加算 → 6点で即勝利（補充は手番の終わり） */
 export function craft(state: GameState, index: number, autoConvert = true): GameState {
   const payment = canCraft(state, index, autoConvert)
   const card = state.market[index]
@@ -196,7 +211,7 @@ export function craft(state: GameState, index: number, autoConvert = true): Game
   const me = state.players[state.current]
   const deck = [...state.deck]
   const market = [...state.market]
-  market[index] = deck.shift() ?? null
+  market[index] = RULES.refill === 'craft' ? (deck.shift() ?? null) : null
   const score = me.score + card.points
   const next: GameState = {
     ...state,
@@ -218,9 +233,10 @@ export function craft(state: GameState, index: number, autoConvert = true): Game
   return next
 }
 
-/** 3. 終了判定 & ターン交代 */
-export function endTurn(state: GameState): GameState {
-  if (state.phase !== 'craft') return state
+/** 3. 場の補充 → 終了判定 & ターン交代 */
+export function endTurn(current: GameState): GameState {
+  if (current.phase !== 'craft') return current
+  const state = refillMarket(current)
   const nextPlayer = opponent(state.current)
   if (legalMoves(state).length === 0) {
     const { p1, cpu } = state.players

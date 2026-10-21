@@ -105,9 +105,10 @@ describe('game flow', () => {
       s.phase === 'gameover' || s.market.some((_, i) => !!canCraft(s, i) && canWin(craft(s, i)))
     const states = (s: GameState): GameState[] => [s, ...s.market.flatMap((_, i) => (canCraft(s, i) ? states(craft(s, i)) : []))]
     // 自分の手番を終えた結果：'lose'（自分のせいで手詰まり負け）／'foe-wins'／'ok'
+    // 手番の終わりに補充されるカードは手番中には分からないので、補充なし（山札を伏せた）で判定する
     const outcome = (after: GameState) => {
       if (after.phase === 'gameover') return 'ok'
-      const e = endTurn(after)
+      const e = endTurn({ ...after, deck: [] })
       if (e.phase === 'gameover') return e.winner === after.current ? 'ok' : 'lose'
       const foe = e.current
       const foeWins = legalMoves(e).some((m) => {
@@ -155,5 +156,30 @@ describe('game flow', () => {
       }
       expect(g.phase).toBe('gameover')
     }
+  })
+})
+
+describe('場の補充', () => {
+  it('調合で空いた場所は手番の間は空きのままで、手番の終わりに山札から補充する', () => {
+    const rng = seeded(3)
+    let g = createGame(rng)
+    for (let guard = 0; guard < 100 && g.phase !== 'gameover'; guard++) {
+      g = pickTile(g, chooseMove(g, undefined, rng)!)
+      const i = chooseCraft(g)
+      if (i === null) {
+        g = endTurn(g)
+        continue
+      }
+      const deck = g.deck.length
+      const crafted = craft(g, i)
+      if (crafted.phase === 'gameover') break
+      expect(crafted.market[i]).toBeNull()
+      expect(crafted.deck).toHaveLength(deck)
+      const ended = endTurn(crafted)
+      expect(ended.market[i]).toEqual(g.deck[0])
+      expect(ended.deck).toHaveLength(deck - 1)
+      return
+    }
+    throw new Error('調合が起きなかった')
   })
 })

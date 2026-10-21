@@ -22,6 +22,11 @@ interface Option {
 
 const WIN = 1_000_000
 
+/** 手番の終わりの補充も、山札の中身を使わず空きのままにする */
+function endTurnHidden(state: GameState): GameState {
+  return { ...endTurn({ ...state, deck: [] }), deck: state.deck }
+}
+
 /** 調合して空いた場所は補充せず空きにする（読みの中で山札の中身を使わない） */
 function craftHidden(state: GameState, index: number): GameState {
   const next = craft(state, index)
@@ -105,7 +110,7 @@ function negamax(state: GameState, depth: number, alpha: number, beta: number): 
     let v: number
     if (s.phase === 'gameover') v = terminal(s, player, depth)
     else {
-      const next = endTurn(s)
+      const next = endTurnHidden(s)
       v = next.phase === 'gameover' ? terminal(next, player, depth) : -negamax(next, depth - 1, -beta, -alpha)
     }
     if (v > best) best = v
@@ -118,7 +123,6 @@ function negamax(state: GameState, depth: number, alpha: number, beta: number): 
 /** depth 手先（自分と相手の手番の合計）まで読んで、この手番の最善手を返す */
 export function searchTurn(state: GameState, depth = 4, rng: () => number = Math.random): TurnPlan | null {
   const player = state.current
-  // ルートでは実際の場（補充前のカード）で調合の候補を作る。補充されたカードは次の手番で考える
   const options = turnOptions(state, true)
   if (!options.length) return null
   let best: Option | null = null
@@ -128,7 +132,7 @@ export function searchTurn(state: GameState, depth = 4, rng: () => number = Math
     let v: number
     if (o.state.phase === 'gameover') v = terminal(o.state, player, depth)
     else {
-      const next = endTurn(o.state)
+      const next = endTurnHidden(o.state)
       v = next.phase === 'gameover' ? terminal(next, player, depth) : -negamax(next, depth - 1, -Infinity, -alpha)
     }
     v += rng() * 0.5 // 同評価の手はランダムに
@@ -143,7 +147,7 @@ export function searchTurn(state: GameState, depth = 4, rng: () => number = Math
 
 /**
  * 調合フェーズで、次に調合するカードの位置（調合しないなら null）。
- * 1枚作るごとに場が補充されるので、毎回呼び直して判断する。
+ * 1枚作るごとに呼び直して判断する。
  */
 export function searchCraft(state: GameState, depth = 4): number | null {
   if (state.phase !== 'craft') return null
@@ -156,7 +160,7 @@ export function searchCraft(state: GameState, depth = 4): number | null {
     let v: number
     if (s.phase === 'gameover') v = terminal(s, player, depth)
     else {
-      const next = endTurn(s)
+      const next = endTurnHidden(s)
       v = next.phase === 'gameover' ? terminal(next, player, depth) : -negamax(next, depth - 1, -Infinity, Infinity)
     }
     if (v > bestV) {

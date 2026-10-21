@@ -47,8 +47,8 @@ export function Market({ selected, onSelect }: Props) {
                   onClick={() => onSelect(selected === i ? null : i)}
                 />
               ) : (
-                <div className="row-start-2 flex aspect-[2/1] md:aspect-[3/4] items-center justify-center rounded-xl border-2 border-dashed border-[var(--border)] text-xs text-[var(--muted)]">
-                  山札切れ
+                <div className="row-start-2 flex aspect-[2/1] md:aspect-[3/4] items-center justify-center rounded-xl border-2 border-dashed border-[var(--border)] p-1 text-center text-xs text-[var(--muted)]">
+                  {game.deck.length > 0 ? '手番の終わりに補充' : '山札切れ'}
                 </div>
               )}
             </AnimatePresence>
