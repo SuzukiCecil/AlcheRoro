@@ -1,0 +1,52 @@
+@import 'tailwindcss';
+
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+:root {
+  --bg: #f6f3ee;
+  --panel: #ffffff;
+  --card: #f3efe8;
+  --border: #ddd5c8;
+  --text: #2a2420;
+  --muted: #7a6f63;
+  --accent: #6d28d9;
+  --board: #d9cfbf;
+  --hole: #c4b8a5;
+  --line: rgba(255, 255, 255, 0.55);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15131a;
+    --panel: #201d27;
+    --card: #2b2734;
+    --border: #3d3848;
+    --text: #ece8f3;
+    --muted: #9a93a8;
+    --accent: #8b5cf6;
+    --board: #2b2734;
+    --hole: #1a1820;
+    --line: rgba(255, 255, 255, 0.12);
+  }
+}
+
+html {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Hiragino Sans', 'Noto Sans JP', system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes tile-pulse {
+  0%, 100% { outline-offset: 0px; outline-color: rgba(255, 255, 255, 0.95); }
+  50% { outline-offset: 3px; outline-color: rgba(255, 255, 255, 0.25); }
+}
+.tile-pulse {
+  outline: 2px solid white;
+  animation: tile-pulse 1.4s ease-in-out infinite;
+}
