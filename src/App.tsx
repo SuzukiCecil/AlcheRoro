@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { CircleHelp, FlaskConical, RotateCcw, SkipForward, Sparkles, Undo2 } from 'lucide-react'
+import { CircleHelp, FlaskConical, RotateCcw, SkipForward, Sparkles, Undo2, LayoutGrid } from 'lucide-react'
+import { HUB_URL } from './hub'
 import { useEffect, useState } from 'react'
 import { Board } from './components/Board'
 import { FlyingGems } from './components/FlyingGems'
@@ -65,16 +66,19 @@ export default function App() {
   return (
     <div className="mx-auto flex min-h-dvh max-w-5xl flex-col px-4 pb-6">
       <header className="sticky top-0 z-30 -mx-4 mb-2 flex md:mb-3 items-center justify-between gap-2 bg-[var(--bg)]/90 px-4 py-1.5 backdrop-blur md:py-2.5">
-        <h1 className="flex items-center gap-1.5 text-base font-black tracking-tight sm:text-xl">
-          <FlaskConical className="text-[var(--accent)]" size={22} />
-          <span className="flex flex-col leading-none">
-            <span className="flex items-baseline gap-1.5">
-              AlcheRoro
-              <span className="hidden text-xs font-bold text-[var(--muted)] sm:inline">アルケロロ</span>
+        <div className="flex min-w-0 items-center gap-1">
+          <HubLink />
+          <h1 className="flex items-center gap-1.5 text-base font-black tracking-tight sm:text-xl">
+            <FlaskConical className="text-[var(--accent)]" size={22} />
+            <span className="flex flex-col leading-none">
+              <span className="flex items-baseline gap-1.5">
+                AlcheRoro
+                <span className="hidden text-xs font-bold text-[var(--muted)] sm:inline">アルケロロ</span>
+              </span>
+              <span className="mt-0.5 text-[10px] font-bold tracking-normal text-[var(--muted)]">inspired by COLORO</span>
             </span>
-            <span className="mt-0.5 text-[10px] font-bold tracking-normal text-[var(--muted)]">inspired by COLORO</span>
-          </span>
-        </h1>
+          </h1>
+        </div>
         <div className="flex items-center gap-0.5 sm:gap-1.5">
           <span
             className={`whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold text-white ${game.current === 'cpu' ? 'bg-rose-500' : 'bg-[var(--accent)]'}`}
@@ -203,5 +207,14 @@ function Log() {
         ))}
       </ul>
     </details>
+  )
+}
+
+/** ゲーム集の入口へ戻る */
+function HubLink() {
+  return (
+    <a href={HUB_URL} aria-label="ゲーム一覧へ" title="ゲーム一覧へ" className="-ml-1.5 shrink-0 rounded-full p-1.5 text-[var(--muted)] hover:bg-[var(--panel)] hover:text-[var(--text)]">
+      <LayoutGrid size={18} />
+    </a>
   )
 }

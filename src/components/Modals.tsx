@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { CircleHelp, Gift, RotateCcw, Shuffle, Trophy, Undo2, X, Zap } from 'lucide-react'
+import { CircleHelp, Gift, RotateCcw, Shuffle, Trophy, Undo2, X, Zap, LayoutGrid } from 'lucide-react'
+import { HUB_URL } from '../hub'
 import type { ReactNode } from 'react'
 import { LEVELS, type Level } from '../game/cpu'
 import { DEBUG } from '../debug'
@@ -115,9 +116,14 @@ export function StartModal({ onRules }: { onRules: () => void }) {
           </button>
         ))}
       </div>
-      <button type="button" onClick={onRules} className="mx-auto mt-4 flex items-center gap-1 text-sm font-bold text-[var(--muted)] hover:text-[var(--text)]">
-        <CircleHelp size={16} /> 遊び方
-      </button>
+      <div className="mt-4 flex justify-center gap-5 text-sm font-bold text-[var(--muted)]">
+        <button type="button" onClick={onRules} className="flex items-center gap-1 hover:text-[var(--text)]">
+          <CircleHelp size={16} /> 遊び方
+        </button>
+        <a href={HUB_URL} className="flex items-center gap-1 hover:text-[var(--text)]">
+          <LayoutGrid size={16} /> ゲーム一覧へ
+        </a>
+      </div>
     </Modal>
   )
 }
